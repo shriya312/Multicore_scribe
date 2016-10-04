@@ -1,0 +1,245 @@
+%
+% This is the LaTeX template file for lecture notes for EE 382C/EE 361C.
+%
+% To familiarize yourself with this template, the body contains
+% some examples of its use.  Look them over.  Then you can
+% run LaTeX on this file.  After you have LaTeXed this file then
+% you can look over the result either by printing it out with
+% dvips or using xdvi.
+%
+% This template is based on the template for Prof. Sinclair's CS 270.
+
+\documentclass[twoside]{article}
+\usepackage{graphics}
+\usepackage{cancel}
+\usepackage{centernot}
+\usepackage{amsmath}
+ \usepackage[margin=1in]{geometry} 
+ \usepackage{graphicx}
+\setlength{\oddsidemargin}{0.25 in}
+\setlength{\evensidemargin}{-0.25 in}
+\setlength{\topmargin}{-0.6 in}
+\setlength{\textwidth}{6.5 in}
+\setlength{\textheight}{8.5 in}
+\setlength{\headsep}{0.75 in}
+\setlength{\parindent}{0 in}
+\setlength{\parskip}{0.1 in}
+
+%
+% The following commands set up the lecnum (lecture number)
+% counter and make various numbering schemes work relative
+% to the lecture number.
+%
+\newcounter{lecnum}
+\renewcommand{\thepage}{\thelecnum-\arabic{page}}
+\renewcommand{\thesection}{\thelecnum.\arabic{section}}
+\renewcommand{\theequation}{\thelecnum.\arabic{equation}}
+\renewcommand{\thefigure}{\thelecnum.\arabic{figure}}
+\renewcommand{\thetable}{\thelecnum.\arabic{table}}
+
+%
+% The following macro is used to generate the header.
+%
+\newcommand{\lecture}[4]{
+   \pagestyle{myheadings}
+   \thispagestyle{plain}
+   \newpage
+   \setcounter{lecnum}{#1}
+   \setcounter{page}{1}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{\vspace{2mm}
+    \hbox to 6.28in { {\bf EE 382C/361C: Multicore Computing
+                        \hfill Fall 2016} }
+       \vspace{4mm}
+       \hbox to 6.28in { {\Large \hfill Lecture #1: #2  \hfill} }
+       \vspace{2mm}
+       \hbox to 6.28in { {\it Lecturer: #3 \hfill Scribe: #4} }
+      \vspace{2mm}}
+   }
+   \end{center}
+   \markboth{Lecture #1: #2}{Lecture #1: #2}
+   %{\bf Disclaimer}: {\it These notes have not been subjected to the
+   %usual scrutiny reserved for formal publications.  They may be distributed
+   %outside this class only with the permission of the Instructor.}
+   \vspace*{4mm}
+}
+
+%
+% Convention for citations is authors' initials followed by the year.
+% For example, to cite a paper by Leighton and Maggs you would type
+% \cite{LM89}, and to cite a paper by Strassen you would type \cite{S69}.
+% (To avoid bibliography problems, for now we redefine the \cite command.)
+% Also commands that create a suitable format for the reference list.
+\renewcommand{\cite}[1]{[#1]}
+\def\beginrefs{\begin{list}%
+        {[\arabic{equation}]}{\usecounter{equation}
+         \setlength{\leftmargin}{2.0truecm}\setlength{\labelsep}{0.4truecm}%
+         \setlength{\labelwidth}{1.6truecm}}}
+\def\endrefs{\end{list}}
+\def\bibentry#1{\item[\hbox{[#1]}]}
+
+%Use this command for a figure; it puts a figure in wherever you want it.
+%usage: \fig{NUMBER}{SPACE-IN-INCHES}{CAPTION}
+\newcommand{\fig}[3]{
+			\vspace{#2}
+			\begin{center}
+			Figure \thelecnum.#1:~#3
+			\end{center}
+	}
+% Use these for theorems, lemmas, proofs, etc.
+\newtheorem{theorem}{Theorem}[lecnum]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newenvironment{proof}{{\bf Proof:}}{\hfill\rule{2mm}{2mm}}
+
+% **** IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
+
+\begin{document}
+%FILL IN THE RIGHT INFO.
+%\lecture{**LECTURE-NUMBER**}{**DATE**}{**LECTURER**}{**SCRIBE**}
+\lecture{10}{September 27}{Vijay Garg}{Shriya Nair}
+%\footnotetext{These notes are partially based on those of Nigel Mansell.}
+
+% **** YOUR NOTES GO HERE:
+
+% Some general latex examples and examples making use of the
+% macros follow.  
+%**** IN GENERAL, BE BRIEF. LONG SCRIBE NOTES, NO MATTER HOW WELL WRITTEN,
+%**** ARE NEVER READ BY ANYBODY.
+\section{Puzzle: Sort 2 arrays}
+\textbf{Description}:\\
+Two sorted A and B of n elements each have to be merged into a sorted array C\\\\
+\textbf{Solution 1}: Sequential Algorithm\\
+-Time = O(n)\\
+-Work = O(n)\\
+-using two pointers \\\\
+\textbf{Solution 2}: Parallel Algorithm\\
+- select an element, find its rank (index + position from binary search)\\
+- Time = $O(\log n)$ \\
+- Work = $O(n\log n)$\\\\
+\textbf{Solution 3}: Cascaded Algorithm - the Work-Optimal Solution\\
+-Divide n array into n/log n groups each of size log n.\\
+	Number of splitters = $(n/\log n)$\\ 
+	Time taken to search for a splitter = $O (\log n)$\\
+    Arrows will never cross because both arrays are sorted\\
+
+\includegraphics[scale=0.58]{scribefor.JPG}
+
+
+- Fill in only splitters \\
+- Find sublists between and such that they are between Q and A \\
+Max number of sublists = $O(n/\log n)$\\
+Size of each list = $\log n$\\
+Two lists of logn size can be merged in $O(\log n)$\\
+
+\begin{table}[ht]
+\begin{tabular} {c c c}
+step & T(n) & W(n) \\
+%heading
+\hline
+Rank & $O(\log n)$ & O(n) \\
+Merging & $O(\log n)$ &$O(n / \log n . \log n)$ = O(n)\\
+\textbf{total:} & $O(\log n)$ & O(n) \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{New Puzzle}
+
+\textbf{Problem}: Parallel Prefix sum\\
+\textbf{Description}: Consider an array on size n not necessarily sorted. Compute the recurring sum. (also called scan)\\
+\textbf{Example}: 1,2,3,4,5,6 \\ 
+Output : 1,3,6,10,15,21\\
+\\
+
+\textbf{Solution 1}: Sequential Algorithm \\
+T(n) = O(n) \\
+W(n) = O(n) \\
+  
+\section{Consistency Conditions}
+- cannot use locks on datastructures- expensive, sequentializing.\\
+- limiting parallelization of code. \\
+Example: 
+\begin{verbatim}
+---push(40)----  ----pop(?)----
+      ----push(30)----
+\end{verbatim}
+When an element is popped will it return 40 or 30? \\ 
+- Need a definition for consistency.
+\subsection{Sequential Consistency}
+- Defined by Lamport\\
+Consider a method foo:
+\begin{verbatim}
+	s.foo(arg1, arg2)
+\end{verbatim}
+where.. \\
+1. s is the object\\
+2. foo: name of the method \\
+3. the statement is the invocation\\
+4. arg1, arg2 are the arguments\\
+5. s.response is the return value. Possible values: OK, value, exception \\\\
+Consider two operations e,f. \\
+Conventions:\\
+inv(e) : invocation of e\\
+resp(e): response generated after invoking e\\
+proc(e) : process e is on\\
+\\
+\textbf{History of operations}: (H, \textless\textsubscript{H}) where \textless\textsubscript{H} is the real-time order. \\
+\textbf{Definition}: e \textless\textsubscript{H} f = resp(e) occurred before inv(f)\\
+Example: 
+\begin{verbatim}
+---push(40)---- 
+    (e)
+                   ----push(30)----
+                         (f)
+\end{verbatim}
+
+Consider e, f :
+\begin{verbatim}
+---push(40)---
+      (e)
+            ---push(30)---
+                (f)
+\end{verbatim}
+e \cancel{\textless}\textsubscript{H} f \&\& f \cancel{\textless}\textsubscript{H} e $\implies$ e is concurrent with f\\
+
+Properties of the relation \textless\textsubscript{H}:\\
+1. Irreflexive : e \textless\textsubscript{H} f $\centernot\implies$ f \cancel{\textless}\textsubscript{H} e\\
+2. Transitive : e \textless\textsubscript{H} f \&\& f \textless\textsubscript{H} g $\implies$ e \textless\textsubscript{H} g \\
+$\implies$ Asymmetric\\
+Hence, (H,\textless\textsubscript{H}) is a partially ordered set or poset
+
+\subsection{Process Order}
+e \textless\textsubscript{H} f are in process order iff:\\
+proc (e) = proc (f) and resp(e) occurred before inv(f) \\
+
+\textless\textsubscript{po} $\subseteq$ \textless\textsubscript{H} \\
+e \textless\textsubscript{po} f $\implies$  e \textless\textsubscript{H} f but the reverse may not be true
+
+\subsection{Sequential History}
+A history (H, \textless\textsubscript{H}) is sequential if \textless\textsubscript{H} is a total order. \\
+A poset (X, \textless) is a total order if $\forall$ distinct (x,y) belongs to X, (x \textless\textsubscript{H} y) or ( y \textless\textsubscript{H} x) \\
+ 
+\textbf{Legal Sequential History:} \\
+A sequential history S is legal if it satisfies sequential specifications of the objects. \\
+
+
+\section*{References}
+\beginrefs
+\bibentry{1}{\sc Vijay K Garg},
+Introduction to Multicore Computing
+
+\endrefs
+
+
+\end{document}
+
+
+
+
+
